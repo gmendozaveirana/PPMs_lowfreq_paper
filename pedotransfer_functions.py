@@ -1,13 +1,13 @@
 """
-    Pedotransfer functions
-    ======================
-    Soil dielectric permittivity modelling for low frequency instrumentation.    
-    ...
+Pedotransfer functions
+======================
+Soil dielectric permittivity modelling for low frequency instrumentation.    
+...
 
-    :AUTHOR: Gaston Mendoza Veirana
-    :CONTACT: gaston.mendozaveirana@ugent.be
+:AUTHOR: Gaston Mendoza Veirana
+:CONTACT: gaston.mendozaveirana@ugent.be
 
-    :REQUIRES: numpy
+:REQUIRES: numpy
 """
 
 # Import
@@ -18,20 +18,20 @@ import numpy as np
 
 def schjonnpd(clay, org, densorg = 1.4, denspart = 2.65, densclay = 2.86, a = 1.127, b = 0.373, c = 2.648, d = 0.209):
     """
-        Schjonnen et al. 2017 
+    Schjonnen et al. 2017 
+
+    Parameters
+    ----------
+    clay: float
+        Soil clay content [g/100g]
     
-        Parameters
-        ----------
-        clay: float
-            Soil clay content
+    org: float
+        volumetric organic matter content (%)
         
-        org: float
-            volumetric organic matter content (%)
-            
-        Returns
-        -------
-        pd: float
-            particle density [g/cm3]   
+    Returns
+    -------
+    pd: float
+        particle density [g/cm3]   
     """
     
     clay = clay/100
@@ -39,7 +39,8 @@ def schjonnpd(clay, org, densorg = 1.4, denspart = 2.65, densclay = 2.86, a = 1.
     
     somr = (org*densorg)/(org*densorg + (1-org)*denspart)
     claymass = (clay*densclay)/(clay*densclay + (1-clay)*denspart)
-    return ((somr/(a+b*somr)) + (1-somr)/(c+d*claymass))**-1
+    pd = ((somr/(a+b*somr)) + (1-somr)/(c+d*claymass))**-1
+    return pd
 
 
 ################################# # # # # #    CEMENTATION EXPONENT    # # # # ######################################
@@ -47,20 +48,21 @@ def schjonnpd(clay, org, densorg = 1.4, denspart = 2.65, densclay = 2.86, a = 1.
 
 def eq16(clay):
     """
-        Shah and Singh (2005)
+    Shah and Singh (2005)
+    
+    Parameters
+    ----------
         
-        Parameters
-        ----------
-            
-        clay: float
-            Soil clay content
-            
-        Returns
-        -------
-        Cementation exponent: float   
+    clay: float
+        Soil clay content [g/100g]
+        
+    Returns
+    -------
+    m: float
+        Cementation exponent [-]   
     """      
-    if (clay >= 5).any():                                          
-        m = 0.92*clay**0.2
+    if (clay*100 >= 5).any():                                          
+        m = 0.92*(clay*100)**0.2
 
     else:
         m = 1.25
@@ -70,105 +72,111 @@ def eq16(clay):
 
 def eq18(alpha):
     """
-        Brovelli & Cassiani (2008)
+    Brovelli & Cassiani (2008)
+    
+    Parameters
+    ----------
         
-        Parameters
-        ----------
-            
-        alpha: float
-            alpha exponent as in LR model [-]
-            
-        Returns
-        -------
-        Cementation exponent: float   
-    """ 
-                                                                    
+    alpha: float
+        alpha geometrical parameter [-]
+        
+    Returns
+    -------
+    m: float
+        Cementation exponent [-]   
+    """                                       
     m = 1/alpha    
     return m
 
 
-def eq20(bd, pd, sp, wp, offset, alpha):
+def eq20(bd, pd, sp, wp, eps_offset, alpha):
     """
-        Mendoza Veirana
+    Mendoza Veirana
+    
+    Parameters
+    ----------
+    bd: float
+        bulk density [g/cm3]
+    
+    pd: float
+        particle density [g/cm3]
         
-        Parameters
-        ----------
-        bd: float
-            bulk density [g/cm3]
+    eps_s: float
+        Soil solid phase real relative dielectric permittivity [-]
         
-        pd: float
-            particle density [g/cm3]
-            
-        sp: float
-            solid permittivity phase [-]
-            
-        wp: float
-            water permittivity phase [-]
-            
-        offset: float
-            offset as defined in Hilhorst (2000) [-]
-            
-        alpha: float
-            alpha exponent as in LR model [-]
-            
-        Returns
-        -------
-        Cementation exponent: float   
+    eps_w: float
+        Soil water phase real relative dielectric permittivity [-]
+        
+    eps_offset: float
+        eps_offset [-]
+        
+    alpha: float
+        Alpha geometrical parameter [-] 
+        
+    Returns
+    -------
+    m: float
+        Cementation exponent [-]   
     """ 
     por = 1 - bd/pd                                                                             
-    m = (np.log((((1 - por)*(sp/wp)**alpha) + por)**(1/alpha) - (offset/wp))) / np.log(por)          
+    m = (np.log((((1 - por)*(sp/wp)**alpha) + por)**(1/alpha) - (eps_offset/wp))) / np.log(por)          
     return m
 
 
-def eq21(clay):
+def eq21(clay, bd, pd, sp, wp, eps_offset):
     """
-        Mendoza Veirana
+    Mendoza Veirana
+    
+    Parameters
+    ----------
+
+    clay: float
+        Soil clay content
+
+    bd: float
+        bulk density [g/cm3]
+    
+    pd: float
+        particle density [g/cm3]
         
-        Parameters
-        ----------
-            
-        clay: float
-            Soil clay content
-            
-        Returns
-        -------
-        Cementation exponent: float   
+    eps_s: float
+        Soil solid phase real relative dielectric permittivity [-]
+        
+    eps_w: float
+        Soil water phase real relative dielectric permittivity [-]
+        
+    eps_offset: float
+        eps_offset [-]
+        
+    alpha: float
+        Alpha geometrical parameter [-] 
+        
+    Returns
+    -------
+    m: float
+        Cementation exponent [-]   
+    """ 
+    por = 1 - bd/pd                                                                             
+    m = (np.log((((1 - por)*(sp/wp)**(-0.46*clay+0.71)) + por)**(1/(-0.46*clay+0.71)) - (eps_offset/wp))) / np.log(por)          
+    return m
+
+
+def eq22(clay):
+    """
+    Mendoza Veirana
+    
+    Parameters
+    ----------
+        
+    clay: float
+        Soil clay content
+        
+    Returns
+    -------
+    m: float
+        Cementation exponent [-]  
     """                                                     
     m = 1/(-0.46*clay+0.71)
-    return m
-
-
-def eq20_17(clay, bd, pd, sp, wp, offset):
-    """
-        Mendoza Veirana
-        
-        Parameters
-        ----------
-        clay: float
-            Soil clay content [-]
-
-        bd: float
-            bulk density [g/cm3]
-        
-        pd: float
-            particle density [g/cm3]
-            
-        sp: float
-            solid permittivity phase [-]
-            
-        wp: float
-            water permittivity phase [-]
-            
-        offset: float
-            offset as defined in Hilhorst (2000) [-]
-            
-        Returns
-        -------
-        Cementation exponent: float   
-    """ 
-    por = 1 - bd/pd  
-    alpha = -0.46*clay + 0.71                                                   # Eq. 17                                                                           
-    m = (np.log((((1 - por)*(sp/wp)**alpha) + por)**(1/alpha) - (offset/wp))) / np.log(por)      #Eq. 20     
     return m
 
 
@@ -176,25 +184,26 @@ def eq20_17(clay, bd, pd, sp, wp, offset):
 
 def eq17(clay):
     """
-        Wunderlich et al., (2013)
+    Wunderlich et al., (2013)
+    
+    Parameters
+    ----------
         
-        Parameters
-        ----------
-            
-        clay: float
-            Soil clay content
-            
-        Returns
-        -------
-        Alpha exponent: float   
+    clay: float
+        Soil clay content [-]
+        
+    Returns
+    -------
+    alpha: float
+        Alpha geometrical parameter [-]   
     """                                                
-    alpha = -0.4*clay+0.71
+    alpha = -0.46*clay+0.71
     return alpha
 
 ################################# # # # # Depolarisation factor solid particles # # # # ######################################
 
 
-def eq23(clay):
+def eq23_16(clay):
     """
         Mendoza Veirana
 
@@ -207,18 +216,18 @@ def eq23(clay):
         Returns
         -------
         Depolarisation factor solid particles: float   
-    """ 
-    if (clay >= 5).any():                                          
-        m = 0.92*clay**0.2
+    """                                
+    if (clay*100 >= 5).any():                                          
+        m = 0.92*(clay*100)**0.2
 
     else:
         m = 1.25
-
+        
     L = -1/m+1
     return L
 
 
-def eq22_21(clay):
+def eq23_22(clay):
     """
         Mendoza Veirana
 
@@ -237,72 +246,89 @@ def eq22_21(clay):
     return L
 
 
-def eq22_20_17(clay, bd, pd, sp, wp, offset):
+def eq23_21(clay, bd, pd, sp, wp, eps_offset):
     """
-        Mendoza Veirana
+    Mendoza Veirana
+    
+    Parameters
+    ----------
+    clay: float
+        Soil clay content [-]
 
-        Parameters
-        ----------
-            
-        clay: float
-            Soil clay content
-            
-        Returns
-        -------
-        Depolarisation factor solid particles: float   
+    bd: float
+        bulk density [g/cm3]
+    
+    pd: float
+        particle density [g/cm3]
+        
+    eps_s: float
+        Soil solid phase real relative dielectric permittivity [-]
+        
+    eps_w: float
+        Soil water phase real relative dielectric permittivity [-]
+        
+    eps_offset: float
+        eps_offset [-]
+        
+    Returns
+    -------
+    L: float
+        Soil solid phase depolarization factor [-]  
     """ 
-    alpha = -0.4*clay+0.71
+    alpha = -0.46*clay+0.71
     por = 1 - bd/pd 
-    m = (np.log((((1 - por)*(sp/wp)**alpha) + por)**(1/alpha) - (offset/wp))) / np.log(por)  
+    m = (np.log((((1 - por)*(sp/wp)**alpha) + por)**(1/alpha) - (eps_offset/wp))) / np.log(por)  
     L = -1/m+1
     return L
 
 
 def eq24(alpha):
     """
-        Mendoza Veirana
+    Mendoza Veirana
 
-        Parameters
-        ----------
-            
-        alpha: float
-            alpha exponent as in LR model [-]
-            
-        Returns
-        -------
-        Depolarisation factor solid particles: float   
+    Parameters
+    ----------
+        
+    alpha: float
+        Alpha geometrical parameter [-] 
+        
+    Returns
+    -------
+    L: float
+        Soil solid phase depolarization factor [-]   
     """ 
     L = -alpha + 1
     return L
 
 
-def eq20_22(bd, pd, sp, wp, offset, alpha):
+def eq23_20(bd, pd, sp, wp, offset, alpha):
     """
-        Mendoza Veirana
+    Mendoza Veirana
+    
+    Parameters
+    ----------
+    bd: float
+        bulk density [g/cm3]
+    
+    pd: float
+        particle density [g/cm3]
+            
+    eps_s: float
+        Soil solid phase real relative dielectric permittivity [-]
+            
+    eps_w: float
+        Soil water phase real relative dielectric permittivity [-]
         
-        Parameters
-        ----------
-        bd: float
-            bulk density [g/cm3]
+    eps_offset: float
+        eps_offset [-]
         
-        pd: float
-            particle density [g/cm3]
-            
-        sp: float
-            solid permittivity phase [-]
-            
-        wp: float
-            water permittivity phase [-]
-            
-        offset: float
-            offset as defined in Hilhorst (2000) [-]
-            
-        alpha: float
-            alpha exponent as in LR model [-]
-            
-        Returns
-        -------
-        Depolarisation factor solid particles: float   
+    alpha: float
+        alpha exponent as in LR model [-]
+        
+    Returns
+    -------
+    L: float
+        Soil solid phase depolarization factor [-] 
     """ 
     por = 1 - bd/pd                                                                             
     m = (np.log((((1 - por)*(sp/wp)**alpha) + por)**(1/alpha) - (offset/wp))) / np.log(por)   

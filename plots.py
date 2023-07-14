@@ -40,20 +40,20 @@ def fig2(a, b, c):
     #c.set_yticks(np.arange(3.2, 4.75, 0.4))
 
 
-def fig6(ax4):
-    ax4.grid(True)
-    #ax4.legend(loc='upper left', fontsize = 12)
-    #ax4.set_title(" " , fontweight='bold', fontsize=25) 
-    ax4.tick_params(axis='y', labelsize=20) 
-    ax4.tick_params(axis='x', labelsize=20) 
-    ax4.set_ylabel('$ε_{s}$ [-] (soil dried at 105 C)', fontsize = 22) 
-    ax4.set_xlabel('$ε_{s}$ [-] (soil dried at 150 C)', fontsize = 22) 
-    #ax1.set_yticks(np.arange(0, -120, -3))
-    ax4.grid(True) 
-    #ax4.set_ylim(3.2, 4.5)  
-    #ax4.set_xlim(3.2, 4.5)
-    ax4.set_xticks(np.arange(3.2, 4.75, 0.4))
-    ax4.set_yticks(np.arange(3.2, 4.75, 0.4))
+def fig5(ax):
+    ax.grid(True)
+    #ax.legend(loc='upper left', fontsize = 12)
+    #ax.set_title(" " , fontweight='bold', fontsize=25) 
+    ax.tick_params(axis='y', labelsize=20) 
+    ax.tick_params(axis='x', labelsize=20) 
+    ax.set_ylabel('$ε_{s}$ [-] (soil dried at 105 C)', fontsize = 22) 
+    ax.set_xlabel('$ε_{s}$ [-] (soil dried at 150 C)', fontsize = 22) 
+    #ax.set_yticks(np.arange(0, -120, -3))
+    ax.grid(True) 
+    #ax.set_ylim(3.2, 4.5)  
+    #ax.set_xlim(3.2, 4.5)
+    ax.set_xticks(np.arange(3.2, 4.75, 0.4))
+    ax.set_yticks(np.arange(3.2, 4.75, 0.4))
 
     
 def fig7(ax1, ax2, ax3):  
