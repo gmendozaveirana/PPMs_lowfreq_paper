@@ -283,7 +283,7 @@ def LongmireSmithEC(bulk_ec_dc, frequency_ec):
         bulk_ec = bulk_ec_dc + sum(bulk_eci_)
         return bulk_ec
     
-def rmse(predictions, targets):
+def RMSE(predictions, targets):
     """
     Compute the Root Mean Square Error.
 
