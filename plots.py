@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 def plot3(ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9, ax10, ax11, ax12, ax13, ax14, ax15):
     ax1.legend(loc='upper right', fontsize = 8)
     #ax1.set_title("Susceptibility vs clay" , fontweight='bold', fontsize=20) 
@@ -163,3 +166,22 @@ def plot3(ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9, ax10, ax11, ax12, ax13, a
     ax15.set_ylim(0, 5e-3)  
     ax15.set_xlim(0, 45) 
     ax15.legend(loc='upper right', fontsize = 10)
+
+def bars_plot(feature_sets, test_errors_summary, train_errors_summary, title):
+    fig, ax = plt.subplots()
+    width = 0.35  # the width of the bars
+
+    x = np.arange(len(feature_sets))
+    rects1 = ax.bar(x - width/2, test_errors_summary, width, color = 'red', label='Test')
+    rects2 = ax.bar(x + width/2, train_errors_summary, width, color = 'blue', label='Train')
+
+    ax.axhline(0, color='grey', linewidth=0.8)
+    ax.set_ylabel('Scores '+title)
+    ax.set_xticks(range(len(test_errors_summary)), feature_sets, rotation = 90)
+    ax.set_ylim(-0.5, 1)
+    ax.legend()
+    ax.set_title('features vs '+title)
+    fig.tight_layout()
+
+    plt.show()
+    plt.savefig("stochastic_"+title, dpi=200)
