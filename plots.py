@@ -167,8 +167,9 @@ def plot3(ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9, ax10, ax11, ax12, ax13, a
     ax15.set_xlim(0, 45) 
     ax15.legend(loc='upper right', fontsize = 10)
 
+
 def bars_plot(feature_sets, test_errors_summary, train_errors_summary, title):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=[7, 4])
     width = 0.35  # the width of the bars
 
     x = np.arange(len(feature_sets))
@@ -185,3 +186,35 @@ def bars_plot(feature_sets, test_errors_summary, train_errors_summary, title):
 
     plt.show()
     plt.savefig("stochastic_"+title, dpi=200)
+
+
+def plot_results(df, actual, predicted, r2_val, rmse_val, scale, title):
+    
+    fig, axes = plt.subplots(figsize=[7, 4])
+    ss = 200
+    
+    # Create a colormap
+    cmap = plt.cm.Reds
+
+    # Loop through each point and plot with appropriate marker
+    for i, (x, y, s) in enumerate(zip(actual, predicted, scale)):
+        if ~(np.isnan(x) or np.isnan(y) or np.isnan(s)):
+            if df['depth'].iloc[i] == 50:
+                marker_style = 'D'
+            else:
+                marker_style = 'o'
+            axes.scatter(x, y, s=ss, alpha=0.8, c=[s], cmap=cmap, vmin=0, vmax=65, marker=marker_style)
+
+    # Create a dummy scatter plot to use its colormap
+    dummy_scatter = plt.scatter([], [], c=[], cmap=cmap, vmin=0, vmax=65)
+    cbar = plt.colorbar(dummy_scatter, ax=axes)
+
+    axes.plot([0, 0.6], [0, 0.6], color='black', label=f'R2 = {r2_val}; RMSE = {rmse_val}')
+    axes.set_xlabel("Observed wat")
+    axes.set_ylabel("Predicted wat")
+    axes.set_title(title)
+    axes.legend()
+    axes.grid(True)
+    axes.set_xlim([0, 0.6])
+    axes.set_ylim([0, 0.6])
+    plt.show()

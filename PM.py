@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.constants import pi, epsilon_0
 
-# def linde(vwc, bd, clay, water_ec, sand, silt, pdn=2.65, m=1.5, n=2):
 def linde(vwc, bd, sand, clay, water_ec, pdn=2.65, m=1.5, n=2):
     """        
         Parameters
