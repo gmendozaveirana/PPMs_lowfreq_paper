@@ -191,7 +191,7 @@ def bars_plot(feature_sets, test_errors_summary, train_errors_summary, title):
 def plot_results(df, actual, predicted, r2_val, rmse_val, scale, title):
     
     fig, axes = plt.subplots(figsize=[7, 4])
-    ss = 200
+    ss = 100
     
     # Create a colormap
     cmap = plt.cm.Reds
