@@ -185,7 +185,7 @@ def bars_plot(feature_sets, test_errors_summary, train_errors_summary, title):
     fig.tight_layout()
 
     plt.show()
-    plt.savefig("stochastic_"+title, dpi=200)
+    #plt.savefig("stochastic_"+title, dpi=200)
 
 
 def plot_results(df, actual, predicted, r2_val, rmse_val, scale, title):
