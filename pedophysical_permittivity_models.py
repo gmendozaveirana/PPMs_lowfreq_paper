@@ -59,7 +59,7 @@ def jacandschjB(vwc, bd, cc, org):
         Soil bulk apparent relative dielectric permittivity [-]  
     """
     p = [17.1e-6, -11.4e-4, 3.45e-2, 
-         -3.41e-2 - vwc -3.7e-2 * bd + 7.36e-4 * cc*100 + 47.7e-4 * org]
+         -3.41e-2 - vwc -3.7e-2 * bd + 7.36e-4 * cc + 47.7e-4 * org]
     roots = np.roots(p)
     roots = roots[roots.imag == 0 ]
     perm_rel = roots[roots > 0]
@@ -404,7 +404,7 @@ def logsdonperm(vwc):
 
 def peplinski(vwc, bd, pd, cc, sand, eps_s, eps_w, tau = 0.65):
     """
-    Peplinski et al., 1995 (Equations 1 to 6) 
+    Peplinski et al., 1995 
     
     Parameters
     ----------
@@ -434,7 +434,7 @@ def peplinski(vwc, bd, pd, cc, sand, eps_s, eps_w, tau = 0.65):
     eps_b: float
         Soil bulk real relative dielectric permittivity [-]   
     """
-    beta1 = 1.2748 - 0.519*sand - 0.152*cc
+    beta1 = 1.2748 - 0.519*sand/100 - 0.152*cc/100
     eps_b = (1 + (bd/pd)*eps_s**tau + (vwc**beta1)*(eps_w**tau) - vwc)**(1/tau)
     return eps_b
 
@@ -603,7 +603,7 @@ def hallikainen_1_4(vwc, cc, sand):
     c0 = 119.006 
     c1 = -0.500 
     c2 = 0.633 
-    eps_b = (a0 + a1*sand + a2*cc*100) + (b0 + b1*sand + b2*cc*100)*vwc + (c0 + c1*sand + c2*cc*100)*vwc**2
+    eps_b = (a0 + a1*sand + a2*cc) + (b0 + b1*sand + b2*cc)*vwc + (c0 + c1*sand + c2*cc)*vwc**2
     return eps_b
 
 
@@ -637,7 +637,7 @@ def hallikainen_4(vwc, cc, sand):
     c0 = 114.826
     c1 = -0.389
     c2 = -0.547
-    eps_b = (a0 + a1*sand + a2*cc*100) + (b0 + b1*sand + b2*cc*100)*vwc + (c0 + c1*sand + c2*cc*100)*vwc**2
+    eps_b = (a0 + a1*sand + a2*cc) + (b0 + b1*sand + b2*cc)*vwc + (c0 + c1*sand + c2*cc)*vwc**2
     return eps_b
     
 
@@ -670,7 +670,7 @@ def hallikainen_18(vwc, cc, sand):
     c0 = 6.960
     c1 = 0.822
     c2 = 1.195
-    eps_b = (a0 + a1*sand + a2*cc*100) + (b0 + b1*sand + b2*cc*100)*vwc + (c0 + c1*sand + c2*cc*100)*vwc**2
+    eps_b = (a0 + a1*sand + a2*cc) + (b0 + b1*sand + b2*cc)*vwc + (c0 + c1*sand + c2*cc)*vwc**2
     return eps_b
 
 
@@ -761,10 +761,9 @@ def LR_high_freq(vwc, bd, pd, cc, eps_a, eps_s, eps_w):
     eps_b: float
         Soil bulk real relative dielectric permittivity [-]
     """
-    
-    por = 1 - bd/pd    # Eq. 3
-    alpha = -0.46 * cc + 0.71                                
-    eps_b = ( vwc*eps_w**alpha + (1-por)*eps_s**alpha + (por-vwc)*eps_a**(alpha))**(1/alpha)
+    por = 1 - bd/pd   
+    alpha = -0.46 * cc/100 + 0.71                                
+    eps_b = (vwc*eps_w**alpha + (1-por)*eps_s**alpha + (por-vwc)*eps_a**(alpha))**(1/alpha)
     return eps_b
 
 
@@ -805,8 +804,8 @@ def linde_high_freq(vwc, bd, pd, cc, eps_a, eps_s, eps_w, eps_offset):
     """
     por = 1 - bd/pd                                                                         
     S = vwc / por   
-    alpha = -0.46 * cc + 0.71                                
-    m = np.log((((1 - por)*(eps_s/eps_w)**alpha) + por)**(1/alpha) - (eps_offset/eps_w)) / np.log(por)    # Eq. 10                                                                          
+    alpha = -0.46 * cc/100 + 0.71                                
+    m = np.log((((1 - por)*(eps_s/eps_w)**alpha) + por)**(1/alpha) - (eps_offset/eps_w))/np.log(por)                                                                         
     n = m
     eps_b = (por**m) * ((S**n)*eps_w + ((por**-m) - 1)*eps_s +(1-S**n)*eps_a)
     return eps_b
@@ -847,14 +846,13 @@ def endres_redman_high_freq(vwc, bd, pd, cc, eps_a, eps_s, eps_w, eps_offset):
     eps_b: float
         Soil bulk real relative dielectric permittivity [-]
     """
-    por = 1 - bd/pd                                                                            # Eq. 3
-    S = vwc/por                                                                                # Saturation
-    alpha = -0.46 * cc + 0.71                                                              # Eq. 7
-    m = (np.log((((1 - por)*(eps_s/eps_w)**alpha) + por)**(1/alpha) - (eps_offset/eps_w))) / np.log(por)    # Eq. 10
-    L = (-1/m) + 1                                        
-                                                                  
+    por = 1 - bd/pd                                                                        
+    S = vwc/por                                                                              
+    alpha = -0.46 * cc/100 + 0.71                                                              
+    m = (np.log((((1 - por)*(eps_s/eps_w)**alpha) + por)**(1/alpha) - (eps_offset/eps_w))) / np.log(por)    
+    L = (-1/m) + 1                                                       
                                                                   # Initializing diferenciation parameters
-    y = eps_w                                                        # Initial permitivity = epsilon sub a  
+    y = eps_w                                                     # Initial permitivity = epsilon sub a  
     x = 0                                                         # Diferentiation from p = 0  
     dx = 0.05                                                     # Diferentiation step
     
@@ -910,11 +908,10 @@ def LR_mv(vwc, bd, pd, eps_a, eps_s, eps_w, CEC):
     eps_b: float
         Soil bulk real relative dielectric permittivity [-]
     """
-
-    por =1 - bd/pd                                           
-    #alpha = 0.271*np.log(CEC) + 0.306 
-    alpha = 0.273*np.log(CEC) + 0.301                   
+    por =1 - bd/pd                                      
+    alpha = 0.271*np.log(CEC) + 0.306
     eps_b = ( vwc*eps_w**alpha + (1-por)*eps_s**alpha + (por-vwc)*eps_a**(alpha))**(1/alpha)
+
     return eps_b
 
 
@@ -950,10 +947,8 @@ def linde_mv(vwc, bd, pd, eps_a, eps_s, eps_w, CEC):
     eps_b: float
         Soil bulk real relative dielectric permittivity [-]
     """
-
-    por = 1 - bd/pd                                                 
-    #m = -0.28*np.log(CEC) + 1.762                                  
-    m = -0.269*np.log(CEC) + 1.716 
+    por = 1 - bd/pd                                                                                
+    m = -0.269*np.log(CEC) + 1.716
     n = m                                                            
     S = vwc / por
     eps_b = (por**m) * ((S**n)*eps_w + ((por**-m) - 1)*eps_s +(1-S**n)*eps_a)
@@ -994,8 +989,7 @@ def sen_mv(vwc, bd, pd, eps_a, eps_s, eps_w, CEC):
     """
 
     por = 1 - bd/pd                                      
-    #L =  -0.186 *np.log(CEC) +  0.565                    
-    L =  -0.19*np.log(CEC) +  0.576 
+    L =  -0.186 *np.log(CEC) +  0.565               
     if CEC> 25:
         L = -0.02
         
@@ -1048,10 +1042,9 @@ def feng_sen_mv(vwc, bd, pd, eps_a, eps_s, eps_w, CEC):
         Soil bulk real relative dielectric permittivity [-]
     """
 
-    por = 1 - bd/pd                                              
-    #L = -0.193*np.log(CEC) +  0.44                           
+    por = 1 - bd/pd                                                                    
     L = -0.193*np.log(CEC) +  0.44 
-    y = eps_w                                                        # Initial permitivity = epsilon sub a  
+    y = eps_w                                                     # Initial permitivity = epsilon sub a  
     x = 0                                                         # Diferentiation from p = 0  
     dx = 0.05                                                     # Diferentiation step
     
@@ -1098,8 +1091,7 @@ def endres_redman_mv(vwc, bd, pd, eps_a, eps_s, eps_w, CEC):
     
     por = 1 - bd/pd                                           
     S = vwc/por          
-    #L = -0.194*np.log(CEC) + 0.472 
-    L = -0.197*np.log(CEC) + 0.478                            
+    L = -0.194*np.log(CEC) + 0.472 
     y = eps_w                                                         
     x = 0                                                         # Diferentiation from p = 0  
     dx = 0.05                                                     # Diferentiation step
@@ -1108,7 +1100,6 @@ def endres_redman_mv(vwc, bd, pd, eps_a, eps_s, eps_w, CEC):
         dy = ((dx*y*(1-S))/(S+x*(1-S))) * ((eps_a-y)/(L*eps_a+(1-L)*y))  
         x = x + dx
         y = y + dy
-                                                                  # Now y is equal to permitivity of pore(s)
     p = 0
     dp = 0.05
     z = y
@@ -1146,9 +1137,8 @@ def wunderlich_mv(vwc, perm_init, water_init, eps_w, CEC):
     -------
     eps_b: float
         Soil bulk real relative dielectric permittivity [-]   
-    """ 
-    #Lw =  -0.0493*np.log(CEC) + 0.1279                     
-    Lw =  -0.0493*np.log(CEC) + 0.1279
+    """                
+    Lw =  -0.0493*np.log(CEC) + 0.1279 
     diff = vwc - water_init                                        # Diference utilized just for simplicity
     y = perm_init                                                  # Initial permitivity = epsilon sub 1  
     x = 0.001                                                      # Diferentiation from p = 0  
