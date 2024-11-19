@@ -436,6 +436,7 @@ def peplinski(vwc, bd, pd, cc, sand, eps_s, eps_w, tau = 0.65):
     """
     beta1 = 1.2748 - 0.519*sand/100 - 0.152*cc/100
     eps_b = (1 + (bd/pd)*eps_s**tau + (vwc**beta1)*(eps_w**tau) - vwc)**(1/tau)
+    #     eps_b = (1 + (bd/pd)*(eps_s**tau-1) + (vwc**beta1)*(eps_w**tau) - vwc)**(1/tau)
     return eps_b
 
 
